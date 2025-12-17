@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  createdTasks Task[] @relation("TaskCreator")
+  assignedTasks Task[] @relation("TaskAssignee")
+  notifications Notification[]
+  activities   Activity[]
+  
+  @@map("users")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String   @db.VarChar(100)
+  description String
+  dueDate     DateTime
+  priority    Priority
+  status      Status   @default(ToDo)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Foreign keys
+  creatorId     String
+  assignedToId  String?
+  
+  // Relationships
+  creator     User   @relation("TaskCreator", fields: [creatorId], references: [id])
+  assignedTo  User?  @relation("TaskAssignee", fields: [assignedToId], references: [id])
+  activities  Activity[]
+  notifications Notification[]
+  
+  @@map("tasks")
+  @@index([creatorId])
+  @@index([assignedToId])
+  @@index([dueDate])
+  @@index([status])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      NotificationType
+  message   String
+  read      Boolean  @default(false)
+  userId    String
+  taskId    String?
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+  task Task? @relation(fields: [taskId], references: [id])
+  
+  @@map("notifications")
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  action    String
+  details   Json
+  taskId    String
+  userId    String
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  task Task @relation(fields: [taskId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  
+  @@map("activities")
+}
+
+enum Priority {
+  Low
+  Medium
+  High
+  Urgent
+}
+
+enum Status {
+  ToDo
+  InProgress
+  Review
+  Completed
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_UPDATED
+  TASK_OVERDUE
+}

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: task-manager-backend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+databases:
+  - name: taskmanager-db
+    databaseName: taskmanager
+    user: taskmanager_user
+    plan: free

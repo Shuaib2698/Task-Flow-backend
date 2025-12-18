@@ -9,10 +9,14 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "test": "jest"
+    "test": "jest",
+    "render-build": "npm ci && npx prisma generate && npx prisma migrate deploy && npm run build",
+    "clean": "rm -rf dist",
+    "type-check": "npx tsc --noEmit",
+    "postbuild": "echo 'Build completed successfully' && ls -la dist/"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.0.0"
   },
   "dependencies": {
     "express": "^4.18.2",

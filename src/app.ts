@@ -18,6 +18,7 @@ import { TaskController } from './controllers/task.controller';
 import { TaskService } from './services/task.service';
 
 const app = express();
+const PORT = process.env.PORT || 5000;  // <-- Keep this one
 const server = createServer(app);
 
 // Initialize Socket.io
@@ -88,7 +89,8 @@ app.use('*', (req, res) => {
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+// Remove the duplicate PORT declaration below:
+// const PORT = process.env.PORT || 5000;  <-- DELETE THIS LINE
 
 server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);

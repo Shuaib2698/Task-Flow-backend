@@ -1,13 +1,7 @@
 services:
   - type: web
     name: task-manager-backend
-    env: node
-    buildCommand: |
-      npm ci
-      npx prisma generate
-      npx prisma migrate deploy
-      npm run build
-    startCommand: node dist/app.js
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
         value: production

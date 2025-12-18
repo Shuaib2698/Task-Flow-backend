@@ -12,17 +12,17 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: PORT
-        value: 10000
+        value: 5000
       # This is the key line - Render will inject the database URL
       - key: DATABASE_URL
         fromDatabase:
-          name: taskmanager-db  # Make sure this matches your database service name
+          name: taskmanager-db # Make sure this matches your database service name
           property: connectionString
     healthCheckPath: /api/health
     autoDeploy: true
 
 databases:
-  - name: taskmanager-db  # This name should match above
+  - name: taskmanager-db # This name should match above
     databaseName: taskmanager_6w3e
     user: taskmanager_6w3e_user
     plan: free

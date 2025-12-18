@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# Generate Prisma client
+# Generate Prisma client (as root since we own the files)
 echo "Generating Prisma client..."
 npx prisma generate
 

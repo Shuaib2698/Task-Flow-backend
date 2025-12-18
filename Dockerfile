@@ -12,7 +12,7 @@ COPY prisma ./prisma/
 # Install all dependencies (including dev dependencies for build)
 RUN npm ci
 
-# Generate Prisma client
+# Generate Prisma client in builder stage
 RUN npx prisma generate
 
 # Copy source code including entrypoint script
@@ -39,15 +39,20 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
-# Create non-root user
+# Create non-root user but keep as root for prisma generate
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
-USER nodejs
+
+# Change ownership of app directory to nodejs user
+RUN chown -R nodejs:nodejs /app
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
 
 EXPOSE 5000
+
+# Switch to nodejs user
+USER nodejs
 
 # Use entrypoint
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

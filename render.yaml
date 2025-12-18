@@ -6,7 +6,7 @@ services:
       npm ci
       npx prisma generate
       npx prisma migrate deploy
-      npm run build
+      npx tsc
     startCommand: node dist/app.js
     envVars:
       - key: NODE_ENV
@@ -17,6 +17,10 @@ services:
         value: https://task-flow-app-six.vercel.app
       - key: JWT_EXPIRES_IN
         value: 7d
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskmanager-db
+          property: connectionString
     healthCheckPath: /api/health
     autoDeploy: true
 

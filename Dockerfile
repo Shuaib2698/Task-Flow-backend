@@ -46,3 +46,10 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 EXPOSE 10000
 
 CMD ["npm", "start"]
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+# Use entrypoint
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

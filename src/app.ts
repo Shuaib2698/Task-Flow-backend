@@ -96,3 +96,18 @@ server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
   console.log(`Socket.io initialized`);
 });
+// Add at the very end of app.ts, before server.listen
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  console.log('Database URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+  console.log('JWT Secret:', process.env.JWT_SECRET ? 'Set' : 'Not set');
+});

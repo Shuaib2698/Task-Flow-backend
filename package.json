@@ -10,7 +10,9 @@
     "prisma:migrate": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "test": "jest",
-    "render:build": "npm ci && npx prisma generate && npx prisma migrate deploy && npm run build"
+    "render:build": "npm ci && npx prisma generate && npx prisma migrate deploy && npm run build",
+    "docker:build": "docker build -t task-manager-backend .",
+    "docker:run": "docker run -p 10000:10000 --env-file .env task-manager-backend"
   },
   "engines": {
     "node": "18.x"

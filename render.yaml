@@ -19,6 +19,12 @@ services:
           property: connectionString
     healthCheckPath: /api/health
     autoDeploy: true
+    # Add these for better compatibility
+    buildCommand: |
+      npm ci
+      npx prisma generate
+      npm run build
+    startCommand: npm start
 
 databases:
   - name: taskmanager-db

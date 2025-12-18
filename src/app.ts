@@ -47,10 +47,8 @@ app.options('*', cors(corsOptions));
 
 // Middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true,
-}));
+
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
@@ -94,6 +92,42 @@ app.get('/api/debug/cookies', (req, res) => {
 app.post('/api/auth/register', (req, res) => authController.register(req, res));
 app.post('/api/auth/login', (req, res) => authController.login(req, res));
 app.post('/api/auth/logout', (req, res) => authController.logout(req, res));
+
+// Test cookie setting endpoint (NO auth required)
+app.get('/api/test-set-cookie', (_req, res) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  res.cookie('test_cookie', 'test_value_' + Date.now(), {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 15 * 60 * 1000, // 15 minutes
+    path: '/',
+  });
+  
+  res.json({
+    success: true,
+    message: 'Test cookie set',
+    environment: process.env.NODE_ENV,
+    cookieOptions: {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    }
+  });
+});
+
+// Test cookie reading endpoint (NO auth required)
+app.get('/api/test-read-cookie', (req, res) => {
+  res.json({
+    success: true,
+    cookies: req.cookies,
+    headers: {
+      cookie: req.headers.cookie,
+      origin: req.headers.origin,
+    }
+  });
+});
 
 // Protected routes
 app.use(authMiddleware);

@@ -41,36 +41,35 @@ export class AuthController {
   }
 
   async login(req: Request, res: Response) {
-    try {
-      const { user, token } = await this.authService.login(req.body);
+  try {
+    const { user, token } = await this.authService.login(req.body);
 
-      // Get the origin from request or environment
-      const origin = req.get('origin') || process.env.CORS_ORIGIN;
-      const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    // Set JWT in HTTP-only cookie with proper production settings
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: isProduction, // true in production (HTTPS)
+      sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site cookies
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+      // DO NOT set domain for Render - let browser determine
+      // domain: isProduction ? '.onrender.com' : undefined, // REMOVE THIS LINE
+    });
 
-      // Set JWT in HTTP-only cookie with proper production settings
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: isProduction, // true in production (HTTPS)
-        sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site in production
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/',
-        domain: isProduction ? '.onrender.com' : undefined, // For subdomain cookies
-      });
-
-      res.json({
-        success: true,
-        data: user,
-        message: 'Login successful',
-      });
-    } catch (error: any) {
-      console.error('Login error:', error);
-      res.status(401).json({
-        success: false,
-        message: error.message,
-      });
-    }
+    res.json({
+      success: true,
+      data: user,
+      message: 'Login successful',
+    });
+  } catch (error: any) {
+    console.error('Login error:', error);
+    res.status(401).json({
+      success: false,
+      message: error.message,
+    });
   }
+}
 
   async logout(_req: Request, res: Response) {
     const isProduction = process.env.NODE_ENV === 'production';

@@ -8,11 +8,13 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://task-flow-frontend-rouge.vercel.app/login
+        value: https://task-flow-frontend-rouge.vercel.app
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: PORT
         value: 5000
+      - key: ALLOWED_ORIGINS
+        value: https://task-flow-frontend-rouge.vercel.app,http://localhost:3000
       # This is the key line - Render will inject the database URL
       - key: DATABASE_URL
         fromDatabase:
@@ -20,9 +22,3 @@ services:
           property: connectionString
     healthCheckPath: /api/health
     autoDeploy: true
-
-databases:
-  - name: taskmanager-db # This name should match above
-    databaseName: taskmanager_6w3e
-    user: taskmanager_6w3e_user
-    plan: free

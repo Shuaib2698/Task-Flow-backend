@@ -31,6 +31,20 @@ TaskService.setIo(io);
 const authController = new AuthController();
 const taskController = new TaskController();
 
+// Update CORS middleware in app.ts
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Set-Cookie'],
+  exposedHeaders: ['Set-Cookie'],
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
 // Middleware
 app.use(helmet());
 app.use(cors({
@@ -55,6 +69,24 @@ app.get('/api/health', (_req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
+  });
+});
+
+// Debug endpoint to check cookies
+app.get('/api/debug/cookies', (req, res) => {
+  console.log('Cookies received:', req.cookies);
+  console.log('Headers:', req.headers);
+  
+  res.json({
+    cookies: req.cookies,
+    headers: {
+      cookie: req.headers.cookie,
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+    },
+    environment: process.env.NODE_ENV,
+    corsOrigin: process.env.CORS_ORIGIN,
+    timestamp: new Date().toISOString(),
   });
 });
 

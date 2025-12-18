@@ -12,12 +12,18 @@ export class AuthController {
     try {
       const { user, token } = await this.authService.register(req.body);
 
-      // Set JWT in HTTP-only cookie
+      // Get the origin from request or environment
+      const origin = req.get('origin') || process.env.CORS_ORIGIN;
+      const isProduction = process.env.NODE_ENV === 'production';
+
+      // Set JWT in HTTP-only cookie with proper production settings
       res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: isProduction, // true in production (HTTPS)
+        sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site in production
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
+        domain: isProduction ? '.onrender.com' : undefined, // For subdomain cookies
       });
 
       res.status(201).json({
@@ -26,6 +32,7 @@ export class AuthController {
         message: 'Registration successful',
       });
     } catch (error: any) {
+      console.error('Registration error:', error);
       res.status(400).json({
         success: false,
         message: error.message,
@@ -37,12 +44,18 @@ export class AuthController {
     try {
       const { user, token } = await this.authService.login(req.body);
 
-      // Set JWT in HTTP-only cookie
+      // Get the origin from request or environment
+      const origin = req.get('origin') || process.env.CORS_ORIGIN;
+      const isProduction = process.env.NODE_ENV === 'production';
+
+      // Set JWT in HTTP-only cookie with proper production settings
       res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: isProduction, // true in production (HTTPS)
+        sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site in production
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
+        domain: isProduction ? '.onrender.com' : undefined, // For subdomain cookies
       });
 
       res.json({
@@ -51,6 +64,7 @@ export class AuthController {
         message: 'Login successful',
       });
     } catch (error: any) {
+      console.error('Login error:', error);
       res.status(401).json({
         success: false,
         message: error.message,
@@ -59,7 +73,16 @@ export class AuthController {
   }
 
   async logout(_req: Request, res: Response) {
-    res.clearCookie('token');
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+      domain: isProduction ? '.onrender.com' : undefined,
+    });
+    
     res.json({
       success: true,
       message: 'Logged out successfully',
@@ -82,6 +105,7 @@ export class AuthController {
         data: user,
       });
     } catch (error: any) {
+      console.error('Get profile error:', error);
       res.status(400).json({
         success: false,
         message: error.message,
@@ -99,6 +123,7 @@ export class AuthController {
         message: 'Profile updated successfully',
       });
     } catch (error: any) {
+      console.error('Update profile error:', error);
       res.status(400).json({
         success: false,
         message: error.message,
